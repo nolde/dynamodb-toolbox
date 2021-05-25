@@ -100,6 +100,10 @@ export interface scanOptions {
   parse?: boolean
 }
 
+export interface nextOptions {
+  limit?: number
+}
+
 interface batchGetOptions {
   consistent?: boolean
   capacity?: DocumentClient.ReturnConsumedCapacity
@@ -461,10 +465,10 @@ class Table {
           },
           // If last evaluated key, return a next function
           result.LastEvaluatedKey ? { 
-            next: () => { 
+            next: (nextOptions: nextOptions | undefined) => {
               return this.query(
                 pk,
-                Object.assign(options, { startKey: result.LastEvaluatedKey }), 
+                Object.assign(options, { startKey: result.LastEvaluatedKey }, nextOptions),
                 params
               ) 
             } 
@@ -719,9 +723,9 @@ class Table {
           },
           // If last evaluated key, return a next function
           result.LastEvaluatedKey ? { 
-            next: () => { 
+            next: (nextOptions: nextOptions | undefined) => {
               return this.scan(
-                Object.assign(options, { startKey: result.LastEvaluatedKey }), 
+                Object.assign(options, { startKey: result.LastEvaluatedKey }, nextOptions),
                 params
               ) 
             } 
